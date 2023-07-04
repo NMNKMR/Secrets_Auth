@@ -36,6 +36,7 @@ app.set("view engine", "ejs");
 
 //Enable public folder
 app.use(express.static("public"));
+app.use(express.static("views"));
 
 //Creating User Schema
 const userSchema = new mongoose.Schema({
