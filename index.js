@@ -32,6 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //Set Ejs
+app.set("views", "./views");
 app.set("view engine", "ejs");
 
 //Enable public folder
