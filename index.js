@@ -114,8 +114,7 @@ passport.use(new GoogleStrategy({
 
 //Managing Get Requests.
 app.get("/", (req, res) => {
-    res.send("This is the issue");
-    //res.render("home")
+    res.render("home")
 })
 
 app.get("/register", (req, res) => {
