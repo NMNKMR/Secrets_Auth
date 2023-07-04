@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <h1>Enter Email To Get Reset Password Link</h1>
+
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="card">
+        <div class="card-body">
+
+          <!-- Makes POST request to /login route -->
+          <form method="POST">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" name="username">
+            </div>
+            <button type="submit" class="btn btn-dark">Get Link</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+<%- include('partials/footer') %>
