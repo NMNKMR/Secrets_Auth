@@ -36,7 +36,6 @@ app.set("view engine", "ejs");
 
 //Enable public folder
 app.use(express.static("public"));
-app.use(express.static("views"));
 
 //Creating User Schema
 const userSchema = new mongoose.Schema({
@@ -114,7 +113,8 @@ passport.use(new GoogleStrategy({
 
 //Managing Get Requests.
 app.get("/", (req, res) => {
-    res.render("home")
+    res.send("This is the issue");
+    //res.render("home")
 })
 
 app.get("/register", (req, res) => {
