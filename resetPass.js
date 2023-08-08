@@ -13,7 +13,7 @@ async function configureNodemailer() {
     return transporter;
 }
 
-async function sendEmail(email, userID, token) {
+async function sendEmail(email, userID, token, res) {
     const transporter = await configureNodemailer();
     const resetUrl = `https://localhost:3000/resetpassword/${userID}/${token}`;
 
@@ -31,7 +31,10 @@ async function sendEmail(email, userID, token) {
         if(err) {
           console.error(err)
           reject(err)
-        } else resolve(info);
+        } else {
+          res.send("Check Your Mail Box");
+          resolve(info);
+        }
       })
     })
   

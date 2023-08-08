@@ -172,8 +172,7 @@ app.route("/forgotpassword")
                     foundUser.token = token;
                     foundUser.tokenExpiration = new Date(Date.now() + 2 * 60 * 1000); //2 mins from current time.
                     foundUser.save().then(() => {
-                        sendEmail(email, userID, token);
-                        res.send("Check Your Mail Box");
+                        sendEmail(email, userID, token, res);
                     })
                 } else res.send("Email Not Found");
             })
