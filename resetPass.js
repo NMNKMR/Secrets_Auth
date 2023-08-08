@@ -15,7 +15,7 @@ async function configureNodemailer() {
 
 async function sendEmail(email, userID, token) {
     const transporter = await configureNodemailer();
-    const resetUrl = `http://localhost:3000/resetpassword/${userID}/${token}`;
+    const resetUrl = `https://localhost:3000/resetpassword/${userID}/${token}`;
 
     // Define the email details
     const mailOptions = {
@@ -26,7 +26,14 @@ async function sendEmail(email, userID, token) {
     };
   
     // Send the email
-    const info = await transporter.sendMail(mailOptions);
+    const info = await new Promise((resolve, reject)=> {
+      transporter.sendMail(mailOptions, (err, info)=> {
+        if(err) {
+          console.error(err)
+          reject(err)
+        } else resolve(info);
+      })
+    })
   
     console.log('Email sent:', info.messageId);
 }

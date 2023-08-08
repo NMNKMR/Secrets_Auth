@@ -7,7 +7,7 @@ const session = require('express-session');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passportLocalMongoose = require('passport-local-mongoose');
 const nodemailer = require('nodemailer');
-const {sendEmail} = require('./resetPass');
+const { sendEmail } = require('./resetPass');
 const crypto = require('crypto');
 
 //Different methods to store password.(encryption and md5 hashing)
@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //Set Ejs
-app.set("views", __dirname+"/views");
+app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
 //Enable public folder
@@ -100,12 +100,12 @@ passport.use(new GoogleStrategy({
                 });
 
                 newUser.save()
-                .then((user)=> {
-                    return done(null, user);
-                })
-                .catch((err)=> {
-                    return done(err);
-                })
+                    .then((user) => {
+                        return done(null, user);
+                    })
+                    .catch((err) => {
+                        return done(err);
+                    })
             })
             .catch((err) => {
                 return done(err);
@@ -127,16 +127,16 @@ app.get("/login", (req, res) => {
 
 //Managing Post Requests
 app.post("/register", (req, res) => {
-    users.register({username: req.body.username}, req.body.password)
-    .then((user) => {
-        passport.authenticate("local")(req, res, () => {
-            res.redirect("/secrets");
+    users.register({ username: req.body.username }, req.body.password)
+        .then((user) => {
+            passport.authenticate("local")(req, res, () => {
+                res.redirect("/secrets");
+            })
         })
-    })
-    .catch((err) => {
-        console.log(err);
-        res.redirect("/register");
-    })
+        .catch((err) => {
+            console.log(err);
+            res.redirect("/register");
+        })
 })
 
 app.post("/login", (req, res) => {
@@ -159,53 +159,55 @@ app.post("/login", (req, res) => {
 })
 
 app.route("/forgotpassword")
-.get((req, res)=> {
-    res.render("getmail");
-})
-.post((req, res)=> {
-    const email = req.body.username;
-    const token = crypto.randomBytes(20).toString('hex');
-    users.findOne({username: email})
-    .then((foundUser)=> {
-        const userID = foundUser._id;
-        foundUser.token = token;
-        foundUser.tokenExpiration = new Date(Date.now() + 2 * 60 * 1000); //2 mins from current time.
-        foundUser.save().then(()=> {
-            sendEmail(email, userID, token);
-        })
+    .get((req, res) => {
+        res.render("getmail");
     })
-    .catch((err)=> console.log(err));
-    res.send("Check Your Mail");
-});
+    .post((req, res) => {
+        const email = req.body.username;
+        const token = crypto.randomBytes(20).toString('hex');
+        users.findOne({ username: email })
+            .then((foundUser) => {
+                if (foundUser) {
+                    const userID = foundUser._id;
+                    foundUser.token = token;
+                    foundUser.tokenExpiration = new Date(Date.now() + 2 * 60 * 1000); //2 mins from current time.
+                    foundUser.save().then(() => {
+                        sendEmail(email, userID, token);
+                        res.send("Check Your Mail Box");
+                    })
+                } else res.send("Email Not Found");
+            })
+            .catch((err) => console.log(err));
+    });
 
 app.route("/resetpassword/:userID/:token")
-.get((req, res)=> {
-    users.findById(req.params.userID)
-    .then((foundUser)=> {
-        if(foundUser){
-            if(!foundUser.token) res.send("Invalid Request")
-            else if(foundUser.token === req.params.token && foundUser.tokenExpiration > new Date()) res.render("changePass")
-            else res.send("Invalid Request");
-        } else res.send("Invalid Request");
+    .get((req, res) => {
+        users.findById(req.params.userID)
+            .then((foundUser) => {
+                if (foundUser) {
+                    if (!foundUser.token) res.send("Invalid Request")
+                    else if (foundUser.token === req.params.token && foundUser.tokenExpiration > new Date()) res.render("changePass")
+                    else res.send("Invalid Request");
+                } else res.send("Invalid Request");
+            })
     })
-})
-.post((req, res)=> {
-    async function changePassword(){
-        const foundUser = await users.findById(req.params.userID)
-        if(foundUser.tokenExpiration > new Date()) {
-            await foundUser.setPassword(req.body.password);
-        } else res.send("Link Expired");
-        
-        foundUser.token = "";
-        foundUser.tokenExpiration = null;
-        foundUser.save()
-        .then((result)=> {
-            res.redirect("/login");
-        }).catch(err=>console.log(err))
-    }
+    .post((req, res) => {
+        async function changePassword() {
+            const foundUser = await users.findById(req.params.userID)
+            if (foundUser.tokenExpiration > new Date()) {
+                await foundUser.setPassword(req.body.password);
+            } else res.send("Link Expired");
 
-    changePassword();
-});
+            foundUser.token = "";
+            foundUser.tokenExpiration = null;
+            foundUser.save()
+                .then((result) => {
+                    res.redirect("/login");
+                }).catch(err => console.log(err))
+        }
+
+        changePassword();
+    });
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
@@ -218,13 +220,13 @@ app.get("/auth/google/secrets",
 );
 
 app.get('/secrets', (req, res) => {
-    if(req.isAuthenticated()) {
-        users.find({secrets: {$ne: null}})
-        .then((usersWithSecrets)=> {
-            res.render("secrets", {usersWithSecrets: usersWithSecrets})
-        })
-        .catch((err)=> console.log(err))
-    } 
+    if (req.isAuthenticated()) {
+        users.find({ secrets: { $ne: null } })
+            .then((usersWithSecrets) => {
+                res.render("secrets", { usersWithSecrets: usersWithSecrets })
+            })
+            .catch((err) => console.log(err))
+    }
     else res.redirect('/login');
 })
 
@@ -235,7 +237,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 })
 
-app.get("/submit", (req, res)=> {
+app.get("/submit", (req, res) => {
     if (req.isAuthenticated()) {
         res.render('submit');
     }
@@ -244,22 +246,22 @@ app.get("/submit", (req, res)=> {
     }
 })
 
-app.post("/submit", (req, res)=> {
+app.post("/submit", (req, res) => {
     console.log(req.user);
     users.findById(req.user.id)
-    .then((foundUser)=> {
-        foundUser.secrets = req.body.secret
-        foundUser.save().then((secretDoc)=> {
-            console.log(secretDoc);
-            res.redirect("/secrets")
+        .then((foundUser) => {
+            foundUser.secrets = req.body.secret
+            foundUser.save().then((secretDoc) => {
+                console.log(secretDoc);
+                res.redirect("/secrets")
+            })
+                .catch((err) => {
+                    console.log(err);
+                })
         })
-        .catch((err)=> {
+        .catch((err) => {
             console.log(err);
         })
-    })
-    .catch((err)=> {
-        console.log(err);
-    })
 })
 
 app.listen(3000, () => console.log("Server started at port 3000"));
