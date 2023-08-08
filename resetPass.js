@@ -15,7 +15,7 @@ async function configureNodemailer() {
 
 async function sendEmail(email, userID, token, res) {
     const transporter = await configureNodemailer();
-    const resetUrl = `https://secrets-auth.vercel.app/${userID}/${token}`;
+    const resetUrl = `https://secrets-auth.vercel.app/resetpassword/${userID}/${token}`;
 
     // Define the email details
     const mailOptions = {
